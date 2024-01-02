@@ -1,0 +1,158 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta charset="utf-8">
+
+		<title>App with data-bound sap.m.Table</title>
+
+		<script src="https://ui5.sap.com/resources/sap-ui-core.js"
+			id="sap-ui-bootstrap"
+			data-sap-ui-libs="sap.m"
+			data-sap-ui-theme="sap_horizon"
+			data-sap-ui-compatVersion="edge"></script>
+			<!-- only load the mobile lib "sap.m" and the "sap_fiori_3" theme -->
+
+		<script id="view1" type="sapui5/xmlview">
+			<core:FragmentDefinition xmlns:tnt="sap.tnt" xmlns="sap.m" xmlns:f="sap.ui.layout.form" xmlns:mvc="sap.ui.core.mvc" xmlns:core="sap.ui.core"  controllerName="myController">
+				<HBox items="{costCenterIds}">
+					<tnt:InfoLabel text="{key}"></tnt:InfoLabel>
+				</HBox>
+			</core:FragmentDefinition>
+		</script>
+
+		<script>
+
+			sap.ui.require([
+				"sap/ui/model/json/JSONModel",
+				"sap/m/Table",
+				"sap/m/Column",
+				"sap/m/Text",
+				"sap/m/ColumnListItem",
+				"sap/m/Page",
+				"sap/m/App",
+				"sap/m/table/columnmenu/Menu",
+				"sap/m/table/columnmenu/QuickAction",
+				"sap/m/Input",
+				"sap/ui/model/Filter",
+				"sap/ui/model/FilterOperator",
+				"sap/ui/core/Fragment",
+				"sap/m/HBox"
+			], function(JSONModel, Table, Column, Text, ColumnListItem, Page, App, Menu, QuickAction, Input, Filter, FilterOperator,Fragment, HBox) {
+
+				var data = {
+					names: [
+						{firstName: "Peter", lastName: "Mueller", costCenterIds: [{key:"123"}, {key:"456"}]},
+						{firstName: "Petra", lastName: "Maier", costCenterIds: [{key: "123"}, {key: "456"}]},
+						{firstName: "Thomas", lastName: "Smith", costCenterIds: [{key: "123"}, {key: "456"}]},
+						{firstName: "John", lastName: "Williams", costCenterIds: [{key: "123"}, {key: "456"}]},
+						{firstName: "Maria", lastName: "Jones", costCenterIds: [{key: "123"}, {key: "456"}]}
+					]
+				};
+
+				var model = new JSONModel();
+				model.setData(data);
+
+				function filterTable() {
+					var aFilters = [];
+					
+					if (aActions[0].getContent()[0].getValue()) {
+						aFilters.push(new Filter("lastName", FilterOperator.Contains, aActions[0].getContent()[0].getValue()));
+					}
+					if (aActions[1].getContent()[0].getValue()) {
+						aFilters.push(new Filter("firstName", FilterOperator.Contains, aActions[1].getContent()[0].getValue()));
+					}
+
+					var oFilter = null;
+					if (aFilters.length == 1) {
+						oFilter = aFilters[0];
+					} else if (aFilters.length == 2) {
+						oFilter = new Filter(aFilters, true);
+					}
+
+					table.getBinding("items").filter(oFilter);
+
+					oMenu.close();
+				}
+
+				var aActions = [
+					new QuickAction({
+						label: "Filter Last name",
+						content: new Input({
+							change: filterTable
+						})
+					}),
+					new QuickAction({
+						label: "Filter first name",
+						content: new Input({
+							change: filterTable
+						})
+					})
+				];
+
+				var oMenu = new Menu({
+					beforeOpen: function(oEvent) {
+						oMenu.removeAllQuickActions();
+						var oAction;
+						if (table.getColumns()[0] === oEvent.getParameter("openBy")) {
+							oAction = aActions[0];
+						} else {
+							oAction = aActions[1];
+						}
+						oMenu.addQuickAction(oAction);
+					}
+				});
+
+				var table = new Table({
+					columns: [
+						new Column({
+							header: new Text({text: "Last Name"}),
+							headerMenu: oMenu
+						}),
+						new Column({
+							header: new Text({text: "First Name"}),
+								headerMenu: oMenu
+						}),
+						new Column({
+							header: new Text({text: "Cost Center"})
+						})						
+					]
+				});
+
+				Fragment.load({
+					type: 'XML',
+					definition: jQuery('#view1').html(),
+					controller: this
+				}).then(function (cellTemplate) {
+					table.bindItems({
+						path: "/names",
+						template: new ColumnListItem({
+							cells: [
+								new Text({text: "{lastName}"}),
+								new Text({text: "{firstName}"}),
+								new HBox({
+									items: cellTemplate
+								})
+							]
+						})
+					});				
+				});
+
+				table.setModel(model);
+
+				var page = new Page({
+					title: "sap.m.Table Page",
+					content: table
+				});
+
+				var app = new App({
+					pages: [page]
+				}).placeAt("content");
+			});
+
+		</script>
+
+	</head>
+	<body id="content" class="sapUiBody">
+	</body>
+</html>
