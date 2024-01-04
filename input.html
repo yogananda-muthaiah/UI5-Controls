@@ -1,0 +1,49 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta charset="utf-8">
+
+		<title>FieldGroup Test</title>
+
+		<script src="https://ui5.sap.com/resources/sap-ui-core.js"
+			id="sap-ui-bootstrap"
+			data-sap-ui-libs="sap.m"
+			data-sap-ui-theme="sap_horizon"
+			data-sap-ui-compatVersion="edge"></script>
+			<!-- only load the main library "sap.m" and the Fiori 3 theme -->
+
+		<script>
+			
+			var oI1 = new sap.m.Input({
+				value: "1",
+				fieldGroupIds: ["FG1"]
+			});
+			var oI2 = new sap.m.Input({
+				value: "2",
+				fieldGroupIds: ["FG1"]
+			});
+			var oT = new sap.m.Text({
+			});
+			
+			var fnValidateFieldGroup = function(oEvent) {
+				var sValue1 = oI1.getProperty("value");
+				var sValue2 = oI2.getProperty("value");
+				oT.setText(sValue1 + " - " + sValue2);
+			};
+			
+			var oB = new sap.m.Button({
+				text:'Check',
+				press: fnValidateFieldGroup
+			});
+			
+			var oVBox = new sap.m.VBox({
+				items: [oI1, oI2, oB, oT],
+				validateFieldGroup: fnValidateFieldGroup
+			}).placeAt('content');
+		</script>
+
+	</head>
+	<body id="content" class="sapUiBody">
+	</body>
+</html>
