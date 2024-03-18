@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv='X-UA-Compatible' content='IE=edge'>
+		<meta charset="utf-8">
+
+		<title>sap.m.MessagePopover with sap.ui.core.CustomData</title>
+
+		<script id='sap-ui-bootstrap'
+			src='https://ui5.sap.com/resources/sap-ui-core.js'
+			data-sap-ui-theme='sap_horizon'
+			data-sap-ui-libs='sap.m'
+			data-sap-ui-compatVersion='edge'></script>
+
+		<script id="xml" type="text/xmldata">
+			<mvc:View xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="controller" displayBlock="true">
+				<App>
+					<Page title="Page">
+						<footer>
+							<OverflowToolbar>
+								<Button id="messagePopoverButton"
+									icon= "sap-icon://message-error"
+									type= "Negative"
+									press="onMessagePopoverPress"/>
+							</OverflowToolbar>
+						</footer>
+					</Page>
+				</App>
+			</mvc:View>
+		</script>
+
+		<script>
+			sap.ui.define([
+				"sap/ui/core/mvc/Controller",
+				"sap/m/MessagePopover",
+				"sap/ui/core/CustomData"
+			], function (Controller, MessagePopover, CustomData) {
+				return Controller.extend("controller", {
+					onMessagePopoverPress: function (oEvent) {
+						if (!this._oMessagePopover) {
+							this._oMessagePopover = new MessagePopover();
+							this._oMessagePopover.addCustomData(new CustomData({
+								key: "key",
+								value: "value",
+								writeToDom: true
+							}));
+							this.byId("messagePopoverButton").addDependent(this._oMessagePopover);
+						}
+						var oMessagePopoverButton = oEvent.getSource();
+						this._oMessagePopover.toggle(oMessagePopoverButton);
+					}
+				});
+			});
+			sap.ui.xmlview({viewContent: jQuery('#xml').html()}).placeAt("content");
+		</script>
+	</head>
+	<body id='content' class='sapUiBody'>
+	</body>
+</html>
